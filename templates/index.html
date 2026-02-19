@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Heart Attack Risk Predictor</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
+        select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; background-color: white; }
+        button { grid-column: span 2; padding: 12px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        button:hover { background-color: #c0392b; }
+        #result-box { margin-top: 20px; text-align: center; padding: 15px; border-radius: 4px; display: none; font-size: 1.2em; font-weight: bold; }
+        .high-risk { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .low-risk { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Heart Attack Risk Assessment</h1>
+        <p style="text-align: center; color: #7f8c8d;">Please fill out all medical history accurately.</p>
+        
+        <div class="grid" id="prediction-form">
+            <div class="form-group">
+                <label>Biological Sex:</label>
+                <select id="Sex"><option value="1">Male</option><option value="0">Female</option></select>
+            </div>
+            <div class="form-group">
+                <label>Age Group:</label>
+                <select id="AgeGroup_Encoded">
+                    <option value="0">Young (18-39)</option>
+                    <option value="1">Middle-aged (40-59)</option>
+                    <option value="2">Senior (60+)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>General Health:</label>
+                <select id="GeneralHealth">
+                    <option value="0">Poor</option><option value="1">Fair</option><option value="2">Good</option>
+                    <option value="3">Very Good</option><option value="4">Excellent</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Ever had Angina?</label>
+                <select id="HadAngina"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group">
+                <label>Ever had a Stroke?</label>
+                <select id="HadStroke"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group">
+                <label>Ever had COPD?</label>
+                <select id="HadCOPD"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group">
+                <label>Ever had Kidney Disease?</label>
+                <select id="HadKidneyDisease"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group">
+                <label>Ever had Arthritis?</label>
+                <select id="HadArthritis"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group">
+                <label>Have Diabetes?</label>
+                <select id="HadDiabetes"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+
+            <div class="form-group">
+                <label>Deaf or Hard of Hearing?</label>
+                <select id="DeafOrHardOfHearing"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group">
+                <label>Blind or Vision Difficulty?</label>
+                <select id="BlindOrVisionDifficulty"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group">
+                <label>Difficulty Walking?</label>
+                <select id="DifficultyWalking"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group">
+                <label>Difficulty Dressing/Bathing?</label>
+                <select id="DifficultyDressingBathing"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group">
+                <label>Difficulty doing Errands?</label>
+                <select id="DifficultyErrands"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+
+            <div class="form-group">
+                <label>Smoker Status:</label>
+                <select id="SmokerStatus">
+                    <option value="0">Never Smoked</option><option value="1">Former Smoker</option>
+                    <option value="2">Smokes Some Days</option><option value="3">Smokes Every Day</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Consume Alcohol?</label>
+                <select id="AlcoholDrinkers"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group">
+                <label>Had a Chest Scan?</label>
+                <select id="ChestScan"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+
+            <div class="form-group">
+                <label>Flu Vaccine in Last 12 Months?</label>
+                <select id="FluVaxLast12"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group">
+                <label>Ever had Pneumonia Vaccine?</label>
+                <select id="PneumoVaxEver"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+            <div class="form-group">
+                <label>Received Tdap Tetanus Shot?</label>
+                <select id="TetanusTdap"><option value="0">No</option><option value="1">Yes</option></select>
+            </div>
+
+            <button onclick="makePrediction()">Assess Patient Risk</button>
+        </div>
+
+        <div id="result-box"></div>
+    </div>
+
+    <script>
+        async function makePrediction() {
+            // We use parseInt because dropdown values are technically strings
+            const data = {
+                "Sex": parseInt(document.getElementById('Sex').value),
+                "GeneralHealth": parseInt(document.getElementById('GeneralHealth').value),
+                "HadAngina": parseInt(document.getElementById('HadAngina').value),
+                "HadStroke": parseInt(document.getElementById('HadStroke').value),
+                "HadCOPD": parseInt(document.getElementById('HadCOPD').value),
+                "HadKidneyDisease": parseInt(document.getElementById('HadKidneyDisease').value),
+                "HadArthritis": parseInt(document.getElementById('HadArthritis').value),
+                "HadDiabetes": parseInt(document.getElementById('HadDiabetes').value),
+                "DeafOrHardOfHearing": parseInt(document.getElementById('DeafOrHardOfHearing').value),
+                "BlindOrVisionDifficulty": parseInt(document.getElementById('BlindOrVisionDifficulty').value),
+                "DifficultyWalking": parseInt(document.getElementById('DifficultyWalking').value),
+                "DifficultyDressingBathing": parseInt(document.getElementById('DifficultyDressingBathing').value),
+                "DifficultyErrands": parseInt(document.getElementById('DifficultyErrands').value),
+                "SmokerStatus": parseInt(document.getElementById('SmokerStatus').value),
+                "ChestScan": parseInt(document.getElementById('ChestScan').value),
+                "AlcoholDrinkers": parseInt(document.getElementById('AlcoholDrinkers').value),
+                "FluVaxLast12": parseInt(document.getElementById('FluVaxLast12').value),
+                "PneumoVaxEver": parseInt(document.getElementById('PneumoVaxEver').value),
+                "AgeGroup_Encoded": parseInt(document.getElementById('AgeGroup_Encoded').value),
+                "TetanusLast10Tdap_Yes, received Tdap": parseInt(document.getElementById('TetanusTdap').value)
+            };
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                if (result.error) {
+                    alert("Error from server: " + result.error);
+                    return;
+                }
+
+                const resultBox = document.getElementById('result-box');
+                resultBox.style.display = "block";
+                
+                if (result.prediction === 1) {
+                    resultBox.className = "high-risk";
+                    resultBox.innerHTML = `⚠️ High Risk Detected <br> <span style="font-size: 0.8em; font-weight: normal;">Model Probability: ${(result.risk_score * 100).toFixed(1)}%</span>`;
+                } else {
+                    resultBox.className = "low-risk";
+                    resultBox.innerHTML = `✅ Low Risk <br> <span style="font-size: 0.8em; font-weight: normal;">Model Probability: ${(result.risk_score * 100).toFixed(1)}%</span>`;
+                }
+            } catch (error) {
+                alert("Failed to connect to the backend app.");
+            }
+        }
+    </script>
+</body>
+</html>
