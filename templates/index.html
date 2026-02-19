@@ -3,131 +3,414 @@
 <head>
     <meta charset="UTF-8">
     <title>Heart Attack Risk Predictor</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #2c3e50; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .form-group { display: flex; flex-direction: column; }
-        label { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
-        select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; background-color: white; }
-        button { grid-column: span 2; padding: 12px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        button:hover { background-color: #c0392b; }
-        #result-box { margin-top: 20px; text-align: center; padding: 15px; border-radius: 4px; display: none; font-size: 1.2em; font-weight: bold; }
-        .high-risk { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .low-risk { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        :root {
+            --bg: #0f0f13;
+            --surface: #17171f;
+            --surface-2: #1e1e2a;
+            --border: rgba(255,255,255,0.07);
+            --accent: #e8483a;
+            --accent-soft: rgba(232, 72, 58, 0.12);
+            --accent-glow: rgba(232, 72, 58, 0.3);
+            --success: #2ecc71;
+            --success-soft: rgba(46, 204, 113, 0.12);
+            --text-primary: #f0ede8;
+            --text-secondary: #8a8899;
+            --text-muted: #4a4a5a;
+            --serif: 'DM Serif Display', Georgia, serif;
+            --sans: 'DM Sans', system-ui, sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--sans);
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(232,72,58,0.08) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 40% at 90% 80%, rgba(100,60,200,0.05) 0%, transparent 60%);
+            min-height: 100vh;
+            padding: 40px 20px 60px;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 44px;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent-soft);
+            border: 1px solid rgba(232,72,58,0.25);
+            color: var(--accent);
+            font-size: 0.72em;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin-bottom: 18px;
+        }
+
+        .header-badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.7); }
+        }
+
+        h1 {
+            font-family: var(--serif);
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: var(--text-primary);
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+            margin-bottom: 12px;
+        }
+
+        h1 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+
+        /* Card */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(232,72,58,0.4), transparent);
+        }
+
+        /* Section titles */
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.7em;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin: 28px 0 16px;
+        }
+
+        .section-label:first-of-type { margin-top: 0; }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 560px) {
+            .grid { grid-template-columns: 1fr; }
+            button { grid-column: span 1 !important; }
+        }
+
+        /* Form groups */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-weight: 500;
+            font-size: 0.8em;
+            color: var(--text-secondary);
+            letter-spacing: 0.02em;
+        }
+
+        select {
+            padding: 10px 36px 10px 14px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: var(--sans);
+            font-size: 0.9em;
+            font-weight: 400;
+            color: var(--text-primary);
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238a8899' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+        }
+
+        select:hover {
+            border-color: rgba(255,255,255,0.15);
+            background-color: #22222f;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        select option { background: #1e1e2a; }
+
+        /* Button */
+        button {
+            grid-column: span 2;
+            margin-top: 24px;
+            padding: 15px 24px;
+            background: var(--accent);
+            color: #fff;
+            font-family: var(--sans);
+            font-size: 0.95em;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.15s, box-shadow 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        button:hover {
+            background-color: #d63d30;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 28px var(--accent-glow);
+        }
+
+        button:active {
+            transform: translateY(0px);
+            box-shadow: 0 2px 10px var(--accent-glow);
+        }
+
+        /* Result box */
+        #result-box {
+            margin-top: 20px;
+            text-align: center;
+            padding: 24px;
+            border-radius: 14px;
+            display: none;
+            font-size: 1.15em;
+            font-family: var(--serif);
+            animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slide-up {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .high-risk {
+            background: rgba(232, 72, 58, 0.1);
+            border: 1px solid rgba(232, 72, 58, 0.3);
+            color: #f87168;
+        }
+
+        .low-risk {
+            background: var(--success-soft);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            color: #5dde8b;
+        }
+
+        #result-box span {
+            font-family: var(--sans) !important;
+        }
+
+        /* Divider between sections */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 20px 0;
+        }
+
+        /* Footer */
+        .footer-note {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.75em;
+            margin-top: 24px;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Heart Attack Risk Assessment</h1>
-        <p style="text-align: center; color: #7f8c8d;">Please fill out all medical history accurately.</p>
-        
-        <div class="grid" id="prediction-form">
-            <div class="form-group">
-                <label>Biological Sex:</label>
-                <select id="Sex"><option value="1">Male</option><option value="0">Female</option></select>
-            </div>
-            <div class="form-group">
-                <label>Age Group:</label>
-                <select id="AgeGroup_Encoded">
-                    <option value="0">Young (18-39)</option>
-                    <option value="1">Middle-aged (40-59)</option>
-                    <option value="2">Senior (60+)</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>General Health:</label>
-                <select id="GeneralHealth">
-                    <option value="0">Poor</option><option value="1">Fair</option><option value="2">Good</option>
-                    <option value="3">Very Good</option><option value="4">Excellent</option>
-                </select>
+
+        <div class="header">
+            <div class="header-badge">MediPredict</div>
+            <h1>Cardiac <em>Risk</em> Assessment</h1>
+            <p class="subtitle">Complete all fields accurately for the most reliable prediction.</p>
+        </div>
+
+        <div class="card">
+
+            <div class="section-label">Demographics</div>
+            <div class="grid">
+                <div class="form-group">
+                    <label>Biological Sex</label>
+                    <select id="Sex"><option value="1">Male</option><option value="0">Female</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Age Group</label>
+                    <select id="AgeGroup_Encoded">
+                        <option value="0">Young (18–39)</option>
+                        <option value="1">Middle-aged (40–59)</option>
+                        <option value="2">Senior (60+)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>General Health</label>
+                    <select id="GeneralHealth">
+                        <option value="0">Poor</option><option value="1">Fair</option><option value="2">Good</option>
+                        <option value="3">Very Good</option><option value="4">Excellent</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Ever had Angina?</label>
-                <select id="HadAngina"><option value="0">No</option><option value="1">Yes</option></select>
-            </div>
-            <div class="form-group">
-                <label>Ever had a Stroke?</label>
-                <select id="HadStroke"><option value="0">No</option><option value="1">Yes</option></select>
-            </div>
-            <div class="form-group">
-                <label>Ever had COPD?</label>
-                <select id="HadCOPD"><option value="0">No</option><option value="1">Yes</option></select>
-            </div>
-            <div class="form-group">
-                <label>Ever had Kidney Disease?</label>
-                <select id="HadKidneyDisease"><option value="0">No</option><option value="1">Yes</option></select>
-            </div>
-            <div class="form-group">
-                <label>Ever had Arthritis?</label>
-                <select id="HadArthritis"><option value="0">No</option><option value="1">Yes</option></select>
-            </div>
-            <div class="form-group">
-                <label>Have Diabetes?</label>
-                <select id="HadDiabetes"><option value="0">No</option><option value="1">Yes</option></select>
-            </div>
-
-            <div class="form-group">
-                <label>Deaf or Hard of Hearing?</label>
-                <select id="DeafOrHardOfHearing"><option value="0">No</option><option value="1">Yes</option></select>
-            </div>
-            <div class="form-group">
-                <label>Blind or Vision Difficulty?</label>
-                <select id="BlindOrVisionDifficulty"><option value="0">No</option><option value="1">Yes</option></select>
-            </div>
-            <div class="form-group">
-                <label>Difficulty Walking?</label>
-                <select id="DifficultyWalking"><option value="0">No</option><option value="1">Yes</option></select>
-            </div>
-            <div class="form-group">
-                <label>Difficulty Dressing/Bathing?</label>
-                <select id="DifficultyDressingBathing"><option value="0">No</option><option value="1">Yes</option></select>
-            </div>
-            <div class="form-group">
-                <label>Difficulty doing Errands?</label>
-                <select id="DifficultyErrands"><option value="0">No</option><option value="1">Yes</option></select>
+            <div class="section-label">Medical History</div>
+            <div class="grid">
+                <div class="form-group">
+                    <label>Ever had Angina?</label>
+                    <select id="HadAngina"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Ever had a Stroke?</label>
+                    <select id="HadStroke"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Ever had COPD?</label>
+                    <select id="HadCOPD"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Ever had Kidney Disease?</label>
+                    <select id="HadKidneyDisease"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Ever had Arthritis?</label>
+                    <select id="HadArthritis"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Have Diabetes?</label>
+                    <select id="HadDiabetes"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label>Smoker Status:</label>
-                <select id="SmokerStatus">
-                    <option value="0">Never Smoked</option><option value="1">Former Smoker</option>
-                    <option value="2">Smokes Some Days</option><option value="3">Smokes Every Day</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Consume Alcohol?</label>
-                <select id="AlcoholDrinkers"><option value="0">No</option><option value="1">Yes</option></select>
-            </div>
-            <div class="form-group">
-                <label>Had a Chest Scan?</label>
-                <select id="ChestScan"><option value="0">No</option><option value="1">Yes</option></select>
-            </div>
-
-            <div class="form-group">
-                <label>Flu Vaccine in Last 12 Months?</label>
-                <select id="FluVaxLast12"><option value="0">No</option><option value="1">Yes</option></select>
-            </div>
-            <div class="form-group">
-                <label>Ever had Pneumonia Vaccine?</label>
-                <select id="PneumoVaxEver"><option value="0">No</option><option value="1">Yes</option></select>
-            </div>
-            <div class="form-group">
-                <label>Received Tdap Tetanus Shot?</label>
-                <select id="TetanusTdap"><option value="0">No</option><option value="1">Yes</option></select>
+            <div class="section-label">Functional Limitations</div>
+            <div class="grid">
+                <div class="form-group">
+                    <label>Deaf or Hard of Hearing?</label>
+                    <select id="DeafOrHardOfHearing"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Blind or Vision Difficulty?</label>
+                    <select id="BlindOrVisionDifficulty"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Difficulty Walking?</label>
+                    <select id="DifficultyWalking"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Difficulty Dressing/Bathing?</label>
+                    <select id="DifficultyDressingBathing"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Difficulty doing Errands?</label>
+                    <select id="DifficultyErrands"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
             </div>
 
-            <button onclick="makePrediction()">Assess Patient Risk</button>
+            <div class="section-label">Lifestyle & Vaccinations</div>
+            <div class="grid">
+                <div class="form-group">
+                    <label>Smoker Status</label>
+                    <select id="SmokerStatus">
+                        <option value="0">Never Smoked</option><option value="1">Former Smoker</option>
+                        <option value="2">Smokes Some Days</option><option value="3">Smokes Every Day</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Consume Alcohol?</label>
+                    <select id="AlcoholDrinkers"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Had a Chest Scan?</label>
+                    <select id="ChestScan"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Flu Vaccine (Last 12 Months)?</label>
+                    <select id="FluVaxLast12"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Ever had Pneumonia Vaccine?</label>
+                    <select id="PneumoVaxEver"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Received Tdap Tetanus Shot?</label>
+                    <select id="TetanusTdap"><option value="0">No</option><option value="1">Yes</option></select>
+                </div>
+
+                <button onclick="makePrediction()">Assess Patient Risk</button>
+            </div>
+
         </div>
 
         <div id="result-box"></div>
+
+        <p class="footer-note">This tool is for informational purposes only and does not constitute medical advice.<br>Always consult a qualified healthcare professional.</p>
+
     </div>
 
     <script>
         async function makePrediction() {
-            // We use parseInt because dropdown values are technically strings
             const data = {
                 "Sex": parseInt(document.getElementById('Sex').value),
                 "GeneralHealth": parseInt(document.getElementById('GeneralHealth').value),
