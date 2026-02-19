@@ -6,7 +6,7 @@ import numpy as np
 app = Flask(__name__)
 
 # --- 1. Load the Model Package ---
-# --- 1. Load the Model Package ---
+
 try:
     package = joblib.load('heart_attack_model.pkl')
     model = package['model']
