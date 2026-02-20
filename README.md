@@ -28,7 +28,8 @@ We are not affiliated with any organizations or entities associated with the dat
 MediPredict/
 ├── app.py              # Flask backend server
 ├── heart_attack_model.pkl # Serialized model, scaler, and feature list
-├── PreProcess.ipynb    # Data analysis and model training notebook
+├── PreProcess.ipynb # Data analysis and model training notebook
+|___ Requirements.txt #   Needed Dependencies to work the app
 ├── templates/
 │   └── index.html      # Web application frontend
 └── venv/               # Python virtual environment
@@ -50,6 +51,8 @@ MediPredict/
 
 7. The terminal will display the local server address and port where the web application is hosted.
 
-8. Open the provided URL in a web browser, enter the requested input data, and click **Predict** to obtain the heart attack risk assessment.
+8. Open the provided URL in a web browser, enter the requested input data.
+
+9. click **Predict** to obtain the heart attack risk assessment.
 
 
