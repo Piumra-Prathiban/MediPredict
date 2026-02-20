@@ -1,0 +1,15 @@
+# requirements.txt
+
+pandas
+numpy
+seaborn
+matplotlib
+
+scikit-learn
+imbalanced-learn
+xgboost
+joblib
+
+jupyter
+notebook
+ipykernel
