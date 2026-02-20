@@ -2,6 +2,8 @@
 
 MediPredict is a web-based machine learning application designed to assess the risk of a heart attack based on a patient's medical history and lifestyle factors. By leveraging a Logistic Regression model trained on real-world medical data, it provides real-time risk probabilities to assist in early health screening.
 
+![alt text](https://github.com/user-attachments/assets/8dbc0f02-00dd-4c1d-aa29-d46ae0e68ff2)
+
 ## Disclaimer
 
 This project is intended for educational purposes only and is not designed for medical use or clinical decision-making. Use of this information is entirely at your own risk, and the authors are not responsible for any outcomes resulting from its use.
